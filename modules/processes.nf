@@ -568,12 +568,19 @@ process COMMUNITIES {
 
     # Community detection based on p/w alignments based on 90% ID at mash level with 6
     # mappings per segment, using k-mer of 19 and window of 67
+
+    Haplotypes=${params.haplotypes}
+    if [[ "\${Haplotypes}" -gt 1 ]]; 
+    then
+        Haplotypes=\$((Haplotypes - 1))
+    fi
+
     if [ -s trim.bed ]; 
     then
-        wfmash \${REFERENCE}.gz -p 90 -n 6 \${SEGSIZE}  -t ${task.cpus} -m > genomes.mapping.tmp
+        wfmash \${REFERENCE}.gz -p 90 -n \${Haplotypes} \${SEGSIZE}  -t ${task.cpus} -m > genomes.mapping.tmp
         editpaf.py genomes.mapping.tmp trim.bed > genomes.mapping.paf
     else
-        wfmash \${REFERENCE}.gz -p 90 -n 6 \${SEGSIZE}  -t ${task.cpus} -m > genomes.mapping.paf
+        wfmash \${REFERENCE}.gz -p 90 -n \${Haplotypes} \${SEGSIZE}  -t ${task.cpus} -m > genomes.mapping.paf
     fi
 
     # Convert PAF mappings into a network:
