@@ -180,7 +180,7 @@ process Bandage {
 
 process ODGI {
     container "pangenome/odgi:1726671973"
-    containerOptions = '--entrypoint ""'
+    label 'odgi'
 
     cpus 1
 
@@ -294,8 +294,9 @@ process OPENNESS_PANGROWTH {
 process PATH_FROM_GFA {
     tag {"get paths from GFA"}
     label 'vcf'
+    label 'odgi'
     container "pangenome/odgi:1726671973"
-    containerOptions = '--entrypoint ""'
+
 
     input:
     path gfa
@@ -368,8 +369,8 @@ process VCF_PROCESS {
 process GETBASES {
     tag {"get bases"}
     label 'bases'
+    label 'odgi'
     container "pangenome/odgi:1726671973"
-    containerOptions = '--entrypoint ""'
 
     input:
     path ogfile
@@ -390,8 +391,8 @@ process GETBASES {
 process VIZ2 {
     tag {"big viz"}
     label 'viz2'
+    label 'odgi'
     container "pangenome/odgi:1726671973"
-    containerOptions = '--entrypoint ""'
 
     input:
     path ogfile
@@ -414,8 +415,8 @@ process VIZ2 {
 process HEAPS {
     tag {"heaps"}
     label 'heaps'
+    label 'odgi'
     container "pangenome/odgi:1726671973"
-    containerOptions = '--entrypoint ""'
 
     input:
     path ogfile 
@@ -455,8 +456,8 @@ process HEAPS_Visualize {
 process PAVS {
     tag{"pavs"}
     label 'pavs'
+    label 'odgi'
     container "pangenome/odgi:1726671973"
-    containerOptions = '--entrypoint ""'
 
     input:
     path ogfile
@@ -633,7 +634,7 @@ process COMMUNITIES {
 process BUSCO { 
 
     container "ezlabgva/busco:v5.8.0_cv1"
-    containerOptions = "--user root"
+    label 'busco'
     input:
     path (refFasta)
 
@@ -790,8 +791,8 @@ process Clean_GTF {
 process Annotate_Position {
     tag {"Annotate_Position"}
     label "Annotate_Position"
+    label 'odgi'
     container "pangenome/odgi:1726671973"
-    containerOptions = '--entrypoint ""'
     publishDir "results/bandage", mode: "copy"
 
     input:
