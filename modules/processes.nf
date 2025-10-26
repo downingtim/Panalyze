@@ -233,6 +233,7 @@ process OPENNESS_PANACUS {
 
 process OPENNESS_PANGROWTH {
     container "chandanatpi/panalayze_env:3.0"
+    cpus { Math.min(params.cpus as int, 12) }
     tag {"get PVG openness pangrowth"}
     label 'openness_pangrowth'
 
@@ -273,7 +274,7 @@ process OPENNESS_PANGROWTH {
     done
 
     # run pangrowth
-    pangrowth hist -k 17 -t 12 SEQS/*a > hist.txt
+    pangrowth hist -k 17 -t ${task.cpus} SEQS/*a > hist.txt
 
     # plot AFS for single dataset - not very useful! 
     plot_hist.py hist.txt pangrowth.pdf
@@ -333,6 +334,7 @@ process VCF_FROM_GFA {
 
 process VCF_PROCESS {
     container "chandanatpi/panalayze_env:3.0"
+    cpus { Math.min(params.cpus as int, 35) }
     tag {"Process VCF information"}
     label 'vcf'
 
@@ -353,7 +355,7 @@ process VCF_PROCESS {
     for ((N=300; N<=${params.genome_length}; N+=2)) 
     # genome ends skipped, even numbers only
     do
-        gfautil --quiet -t 35 -i ${gfa_file} snps --ref \$Ref  --snps \$N
+        gfautil --quiet -t ${task.cpus} -i ${gfa_file} snps --ref \$Ref  --snps \$N
     done| sort -nk 3 | grep -v \\: |grep -v path > variation_map.txt
 
     plot_variation_map.R || true # plot image of variation map in PDF
@@ -368,6 +370,7 @@ process VCF_PROCESS {
 
 process GETBASES {
     tag {"get bases"}
+    cpus { Math.min(params.cpus as int, 22) }
     label 'bases'
     label 'odgi'
     container "pangenome/odgi:1726671973"
@@ -383,7 +386,7 @@ process GETBASES {
 
     script:
     """
-    odgi flatten -i ${ogfile} -f out.flatten.fa -b out.bed -t 22
+    odgi flatten -i ${ogfile} -f out.flatten.fa -b out.bed -t ${task.cpus}
     #bases.pl ${refFasta}
     """
 }
@@ -416,6 +419,7 @@ process HEAPS {
     tag {"heaps"}
     label 'heaps'
     label 'odgi'
+    cpus { Math.min(params.cpus as int, 12) }
     container "pangenome/odgi:1726671973"
 
     input:
@@ -430,7 +434,7 @@ process HEAPS {
     # visualise output, reading in heaps file, 3rd column only of interest
     for N in {1..${params.haplotypes}}
     do
-       odgi heaps -i ${ogfile} -n 1000 -d \$N -t 12 | sort -nk 2 | tail -n 1
+       odgi heaps -i ${ogfile} -n 1000 -d \$N -t ${task.cpus} | sort -nk 2 | tail -n 1
     done > heaps.txt
     """
 }
@@ -457,6 +461,7 @@ process PAVS {
     tag{"pavs"}
     label 'pavs'
     label 'odgi'
+    cpus { Math.min(params.cpus as int, 22) }
     container "pangenome/odgi:1726671973"
 
     input:
@@ -469,7 +474,7 @@ process PAVS {
 
     script:
     """
-    odgi flatten -i ${ogfile} -b out.flatten.tsv -t 22
+    odgi flatten -i ${ogfile} -b out.flatten.tsv -t ${task.cpus}
 
     # convert to BED
     sed '1d' out.flatten.tsv | awk -v OFS='\t' '{print(\$4,\$2,\$3,"step.rank_"\$6,".",\$5)}' > out.flatten.bed
