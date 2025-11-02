@@ -3,7 +3,22 @@
 ![Docker](https://img.shields.io/badge/uses-docker-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-gray)
 ![Publication](https://img.shields.io/badge/Publication-OUP%20Bioinformatics-purple)
+## Table of contents
 
+- [Overview](#overview)
+- [Installation](#installation)
+- [Examples](#examples)
+- [Module selection](#module-selection)
+- [Speeding it up](#speeding-it-up)
+- [Java issue](#java-issue)
+- [Docker image issues](#docker-image-issues)
+- [Make your own run](#make-your-own-run)
+- [How does it work?](#how-does-it-work)
+- [Main components](#main-components)
+- [Dependencies](#dependencies)
+- [Template file format](#template-file-format)
+- [Credits](#credits)
+- [License](#mit-license)
 # Overview
 
 Panalyze can make and analyse [pangenome variation graphs (PVGs)](https://doi.org/10.1093/bioinformatics/btac743). This was mainly designed with virus genomes in mind. It takes in a FASTA file of related sequences and constructs a PVG from them using [PGGB](https://github.com/pangenome/pggb). It visualises the PVG using [VG](https://github.com/vgteam/vg) and [ODGI](https://github.com/pangenome/odgi), and summarises it numerically using [GFAtools](https://github.com/lh3/gfatools) and ODGI. It calculates PVG openness using [Panacus](https://github.com/marschall-lab/panacus), [Pangrowth](https://peercommunityjournal.org/item/10.24072/pcjournal.415.pdf) and ODGI's heaps function. It gets the sample genome sizes and allocates them into communities (ie, groups) based on similarity. It identifies mutations in the form of VCFs using GFAutil and gets presence-absence variants (PAVs). It has a range of optional functions, like downloading a query to create the input FASTA, and using the [BUSCO database](https://busco.ezlab.org/) to quantify the numbers of genes in the samples of interest.
@@ -11,6 +26,8 @@ Panalyze can make and analyse [pangenome variation graphs (PVGs)](https://doi.or
 You can read our preprint [here](https://www.biorxiv.org/content/10.1101/2025.04.10.646565) and some ideas behind this [here](https://arxiv.org/abs/2412.05096). Panalyze works in a [Docker](https://www.docker.com/resources/what-container) container and runs in [NextFlow](https://www.nextflow.io/).
 
 ## Installation
+
+Panalyze requires `docker` and `Nextflow`. For installation of these, please follow instructions at https://docker.com and https://www.nextflow.io/ that matches your environment.    
 
 Clone the directory
 
@@ -26,7 +43,7 @@ For example, we can examine a small set of goatpox virus (GTPV) genomes:
 
     nextflow run main.nf --config templates/template.GTPV.yml --reference test_data/GTPV.fa
 
-Note that for your own samples, you will need to remove special characters in your sample names. In addition, to ensure compatibility with other pangenome graph tools, please adhere to the [PanSN-spec: Pangenome Sequence Naming](https://github.com/pangenome/PanSN-spec) guidance, which basically means adding a hash and a digit onto the end of the sample names.
+Note that for your own samples, you will need to remove special characters in the fasta files. In addition, to ensure compatibility with other pangenome graph tools, please adhere to the [PanSN-spec: Pangenome Sequence Naming](https://github.com/pangenome/PanSN-spec) guidance, which basically means adding a hash and a digit onto the end of the sequence names.
 
 
 ## Examples ## 
@@ -96,16 +113,17 @@ You can skip some modules: the HEAPS_Visualize module takes a considerable amoun
 
 ## Java issue
 
-In the event that you have a Java version issue, you should ensure you have version 11 or higher and the commands below may assist (you may need to edit these):
+In the event that you have a Java version issue when running Nextflow, you should ensure you have version 11 or higher and the commands below may assist (you may need to edit these):
 
     export JAVA_HOME=/cm/shared/apps/mambaforge/envs/tools
     export PATH=$JAVA_HOME/bin:$PATH
 
 
-## Docker images of old Panalyze versions
+## Docker image issues 
 
-You may need to remove old docker images using 'docker rmi 1234567' where 1234567 is an older docker image of Panalyze. The command below may be a useful starting point, which removes all docker images.
-```pdsh -R ssh -w compute00[1-9] /cm/local/apps/docker/current/bin/docker rmi "\$(/cm/local/apps/docker/current/bin/docker images  -q)" -f```
+You may need to remove old docker images using `docker rmi 1234567` where 1234567 is an older docker image of Panalyze. The command below may be a useful starting point, which removes all docker images. You might need to run these on the nodes of your HPC as well.
+
+```docker rmi "\$(docker images  -q)" -f```
 
 ## Make your own run
 
@@ -113,8 +131,8 @@ In your own template YML file, you will need to define the dataset name, number 
 
 ## How does it work?
 
-The input data is "test_genomes.GTPV.fa" in this example. You can switch this to your own FASTA file input: in main.nf, Panalyze has a Download module which is not active by default.
-vvvvThe modules folder contains the processes, which are called by main.nf. These may call tools and scripts in other folders like bin.
+The input data is `test_genomes.GTPV.fa` in this example. You can switch this to your own FASTA file input: in main.nf, Panalyze has a Download module which is not active by default.
+The modules folder contains the processes, which are called by main.nf. These will use tools and scripts in docker containers.
 
 
 ## Main components:
@@ -181,9 +199,9 @@ vvvvThe modules folder contains the processes, which are called by main.nf. Thes
 
 ## Dependencies
 
-Panalyze is based on the following tools and scripts. If you use the Docker version, this should not be an issue.
+Panalyze is based on the following tools and scripts. These are packaged in  docker images.
 
-1.  Esearch cand efetch
+1.  Esearch and efetch
 2.  Mafft
 3.  RAxML
 4.  R
@@ -203,6 +221,44 @@ Panalyze is based on the following tools and scripts. If you use the Docker vers
 18. Mash
 19. Gffread
 20. Prokka
+
+## Template file format
+The template file controls the parameters of the pipeline. It has the following sections.
+- PROCESS - Controls the processing environment
+- VIRUS - Provides parameters related to the virus analysis
+- MODULES - Toggles modules
+
+Following is a description of the parameters for these sections
+### PROCESS:
+-   executor: <string> (optional)
+     - HPC executor to use (e.g., "slurm", "sge", "local"). If commented out or absent,
+       a default/local executor will be used (For laptops this is the correct setting). Adjust to match your compute environment.
+     - cpus: <int> Number of CPU cores to allocate to the pipeline 
+
+### VIRUS:
+   - name: <string> (optional)
+     Search/query string for the target virus. Multiple terms may be combined using "OR" (e.g., "goatpox virus OR GTPV"). This is for metadata/search purposes only.
+   - filter: <comma-separated list> (optional)
+      Comma-separated synonyms or tokens used to filter/identify sequences (e.g.,
+       "goatpox virus, GTPV, goatpox"). Keep entries concise and consistent with metadata.
+   - busco_clade: <string> (optional)
+     BUSCO lineage dataset name (e.g., "poxviridae_odb10"). If present, BUSCO analysis
+       will be executed for assemblies. 
+   - haplotypes: <int>
+     Expected number of haplotypes to consider during analyses
+   - genome_length: <int>
+     Expected genome size (in bases). 
+
+ ### MODULES:
+ Each key under MODULES toggles a pipeline stage/module.
+ Value: 0 = disabled (skip this stage), 1 = enabled (run this stage). If a module depends on the execution of another module is enabled, the dependant modules are automatically executed even if they are turned off.
+    
+
+ Notes & best practices:
+   - Toggle modules to 1 only for stages you want executed; turning off expensive steps
+     can speed up testing runs.
+   - Keep numeric values as integers (no quotes) where appropriate (cpus, haplotypes, etc.).
+   - Maintain correct YAML indentation and types when editing this file.
 
 ## Credits
 
