@@ -96,7 +96,9 @@ process MAKE_PVG {
 
     script:
     """
-    REFERENCE="${refFasta}"
+    sed 's/\\r\$//' ${refFasta}|awk '{if(substr(\$0,1,1)==">"){stem=substr(\$0,2);print ">"stem"#1#"stem}else{print \$0}}' >reftemp.fa
+
+    REFERENCE=reftemp.fa 
     # The second argument is a primer sequence; set via params.primer_sequence for reproducibility
     preprocess.py \${REFERENCE} "TTTTTTT" 1500 > processed.fa
     if [ -s trim.bed ]; 
