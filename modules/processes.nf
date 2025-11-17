@@ -42,6 +42,20 @@ process DOWNLOAD {
     '''
 }
 
+process Fix_Fasta {
+    cpus 1 
+
+    input:
+    path (refFasta)
+
+    output:
+    path "genomes.fasta", emit: fasta_file
+
+    shell:
+    """
+    sed 's/\\r\$//' ${refFasta}|awk '{if(substr(\$0,1,1)==">"){stem=substr(\$0,2);print ">"stem"#1#"stem}else{print \$0}}' > genomes.fasta
+    """
+}
 process ALIGN {
     container "chandanatpi/panalayze_env:3.0"
     cpus { Math.min(params.cpus as int, 8) }
@@ -96,9 +110,8 @@ process MAKE_PVG {
 
     script:
     """
-    sed 's/\\r\$//' ${refFasta}|awk '{if(substr(\$0,1,1)==">"){stem=substr(\$0,2);print ">"stem"#1#"stem}else{print \$0}}' >reftemp.fa
 
-    REFERENCE=reftemp.fa 
+    REFERENCE=${refFasta}
     # The second argument is a primer sequence; set via params.primer_sequence for reproducibility
     preprocess.py \${REFERENCE} "TTTTTTT" 1500 > processed.fa
     if [ -s trim.bed ]; 

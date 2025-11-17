@@ -17,7 +17,7 @@ nextflow.enable.dsl = 2
 Modules
 #==============================================
 */
-include { DOWNLOAD; ALIGN; TREE; MAKE_PVG; VIZ1; ODGI; OPENNESS_PANACUS; OPENNESS_PANGROWTH; PATH_FROM_GFA;VCF_FROM_GFA;VCF_PROCESS; GETBASES; VIZ2; HEAPS; HEAPS_Visualize; PAVS; PAVS_plot; WARAGRAPH; COMMUNITIES; PANAROO; BUSCO; PAFGNOSTIC; Bandage;BANDAGE_view; GFAstat; SUMMARIZE; Extract_Ref; PROKKA; Clean_GTF; Annotate_Position  } from './modules/processes.nf'
+include { Fix_Fasta; DOWNLOAD; ALIGN; TREE; MAKE_PVG; VIZ1; ODGI; OPENNESS_PANACUS; OPENNESS_PANGROWTH; PATH_FROM_GFA;VCF_FROM_GFA;VCF_PROCESS; GETBASES; VIZ2; HEAPS; HEAPS_Visualize; PAVS; PAVS_plot; WARAGRAPH; COMMUNITIES; PANAROO; BUSCO; PAFGNOSTIC; Bandage;BANDAGE_view; GFAstat; SUMMARIZE; Extract_Ref; PROKKA; Clean_GTF; Annotate_Position  } from './modules/processes.nf'
 /*
 #==============================================
 Modules
@@ -26,10 +26,10 @@ Modules
 
 workflow Main {
     // Define a single source for fasta input
-    fastaCh = params.reference 
+    fastaCh_original = params.reference 
         ? channel.fromPath(params.reference, checkIfExists: true) 
         : DOWNLOAD().fasta_file
-    
+    fastaCh = Fix_Fasta(fastaCh_original).fasta_file 
     // Debug print to console
     fastaCh.view { "Debug - Input file: $it" }
     
