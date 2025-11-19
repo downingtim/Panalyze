@@ -248,6 +248,8 @@ Following is a description of the parameters for these sections
      Expected number of haplotypes to consider during analyses
    - genome_length: <int>
      Expected genome size (in bases). 
+   - pansn_convert : <int> 
+     Convert the reference in to Pan-SN format if set to 1
 
  ### MODULES:
  Each key under MODULES toggles a pipeline stage/module.

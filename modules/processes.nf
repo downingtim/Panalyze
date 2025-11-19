@@ -53,7 +53,17 @@ process Fix_Fasta {
 
     shell:
     """
-    sed 's/\\r\$//' ${refFasta}|awk '{if(substr(\$0,1,1)==">"){stem=substr(\$0,2);print ">"stem"#1#"stem}else{print \$0}}' > genomes.fasta
+    if [ "${params.pansn_convert}" -eq 1 ]
+    then
+        sed 's/\\r\$//' ${refFasta}|awk '{if(substr(\$0,1,1)==">"){stem=substr(\$0,2);print ">"stem"#1#"stem}else{print \$0}}' > genomes.fasta
+    else
+        if grep -P '\\r' ${refFasta}
+        then
+            sed 's/\\r\$//' ${refFasta} > genomes.fasta
+        else
+            ln -s ${refFasta} genomes.fasta
+        fi
+    fi
     """
 }
 process ALIGN {

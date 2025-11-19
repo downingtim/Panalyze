@@ -103,7 +103,7 @@ workflow Main {
     }
     
     if (params.busco && params.busco_clade) {
-        BUSCO(fastaCh)
+        BUSCO(fastaCh_original)
     }
 }
 
