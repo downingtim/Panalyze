@@ -24,7 +24,7 @@ process DOWNLOAD {
 
     output:
     publishDir "results/download", mode: "copy"
-    path "genomes.fasta", emit: fasta_file
+    path "genomes.downloaded.fasta", emit: fasta_file
 
     shell:
     q1 = params.virus_name + " [organism] AND complete genome [title]"  
@@ -36,9 +36,9 @@ process DOWNLOAD {
     cat gb.1 gb.2 > genbank.gb 
     rm gb.1 gb.2
     #parseGB.py genbank.gb|sed -e "s%!{filter}%%g"|tr -d "',)(:;\\\""|sed -e "s%/\\| \\|-%_%g" |sed -e "s%[_]+%_%g"|tr -s _|sed -e "s/_$//"  > genomes.fasta
-    parseGB.py genbank.gb > genomes.fasta
-    ls -lt genomes.fasta genbank.gb
-    echo "File created with size: $(ls -la genomes.fasta)"
+    parseGB.py genbank.gb > genomes.downloaded.fasta
+    ls -lt genomes.downloaded.fasta genbank.gb
+    echo "File created with size: $(ls -la genomes.downloaded.fasta)"
     '''
 }
 
@@ -61,7 +61,9 @@ process Fix_Fasta {
         then
             sed 's/\\r\$//' ${refFasta} > genomes.fasta
         else
-            ln -s ${refFasta} genomes.fasta
+            if [ ! -e genomes.fasta ]; then
+                ln -s "${refFasta}" genomes.fasta
+            fi
         fi
     fi
     """
