@@ -607,14 +607,26 @@ process COMMUNITIES {
     then
         Haplotypes=\$((Haplotypes - 1))
     fi
+    for L in "" \$(seq 3000 -100 1200); do
+        if [ -z "\${L}" ]; then
+            LARG=""
+        else
+            LARG="-l \${L}"
+            echo "Trying wfmash with \${LARG}"
+        fi
 
-    if [ -s trim.bed ]; 
-    then
-        wfmash \${REFERENCE}.gz -p 90 -n \${Haplotypes} \${SEGSIZE}  -t ${task.cpus} -m > genomes.mapping.tmp
-        editpaf.py genomes.mapping.tmp trim.bed > genomes.mapping.paf
-    else
-        wfmash \${REFERENCE}.gz -p 90 -n \${Haplotypes} \${SEGSIZE}  -t ${task.cpus} -m > genomes.mapping.paf
-    fi
+        if [ -s trim.bed ]; then
+            wfmash \${REFERENCE}.gz -p 90 -n \${Haplotypes} \${SEGSIZE} \${LARG} -t ${task.cpus} -m > genomes.mapping.tmp 2>/dev/null || true
+            editpaf.py genomes.mapping.tmp trim.bed > genomes.mapping.paf 2>/dev/null || true
+        else
+            wfmash \${REFERENCE}.gz -p 90 -n \${Haplotypes} \${SEGSIZE} \${LARG} -t ${task.cpus} -m > genomes.mapping.paf 2>/dev/null || true
+        fi
+
+        if [ -s genomes.mapping.paf ]; then
+            echo "genomes.mapping.paf created with -l='\${L}' - stopping loop"
+            break
+        fi
+    done
 
     # Convert PAF mappings into a network:
     paf2net.py -p genomes.mapping.paf
