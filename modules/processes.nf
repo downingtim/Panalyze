@@ -383,7 +383,13 @@ process VCF_PROCESS {
     # genome ends skipped, even numbers only
     do
         gfautil --quiet -t ${task.cpus} -i ${gfa_file} snps --ref \$Ref  --snps \$N
-    done| sort -nk 3 | grep -v \\: |grep -v path > variation_map.txt
+    done| sort -nk 3 | grep -v \\: |grep -v path > variation_map.txt || true
+
+    if [ ! -s variation_map.txt ]; then
+        echo "variation_map.txt is empty; skipping plotting and downstream steps"
+        touch mutation_density.pdf frequency_distribution.png
+        exit 0
+    fi
 
     plot_variation_map.R || true # plot image of variation map in PDF
 
