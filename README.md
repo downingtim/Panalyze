@@ -47,58 +47,31 @@ Note that for your own samples, you will need to remove special characters in th
 
 
 ## Examples ## 
+We have added a selection of viral genomes to represent a common range of sizes, nucleic acid composition as examples. You can run the analysis for each dataset using the command: 
 
-In another example, we can examine a set of 142 foot-and-mouth virus (FMDV) serotype A genomes:
+     nextflow run main.nf --config <config.yml> --reference <reference.fa>
 
-    nextflow run main.nf --config templates/template.FMDV.A.yml --reference test_data/FMDV.A.fa
+Where the `config.yml` file and the `reference.fa` file are taken from the columns `Config file` and `Reference` columns respectively. If no reference is given, the analysis can be run with the command
+     
+     nextflow run main.nf --config <config.yml>
 
-We can examine a set of 441 foot-and-mouth virus (FMDV) serotype O genomes:
+and the datasets will be downloaded automatically.
 
-    nextflow run main.nf --config templates/template.FMDV.O.yml --reference test_data/FMDV.O.fa
-
-We can examine a set of 18 foot-and-mouth virus (FMDV) serotype C genomes:
-
-    nextflow run main.nf --config templates/template.FMDV.C.yml --reference test_data/FMDV.C.fa
-
-We can take 121 lumpy skin disease virus (LSDV) genomes:
-
-    nextflow run main.nf --config templates/template.LSDV.yml --reference test_data/LSDV.fa
-
-We can take 29 sheeppoxvirus (SPPV) genomes:
-
-    nextflow run main.nf --config templates/template.SPPV.yml --reference test_data/SPPV.fa  
-
-We can take 132 lumpy skin disease virus (LSDV) genomes but just 7.5 Kb spanning 2.5-10 Kb of their aligned genomes:
-
-    nextflow run main.nf --config templates/template.LSDV.10kb.yml --reference test_data/LSDV.10kb.fa
-
-We can take 132 lumpy skin disease virus (LSDV) genomes but just 5 Kb spanning 135-140 Kb of their aligned genomes:
-
-    nextflow run main.nf --config templates/template.LSDV.135kb.yml --reference test_data/LSDV.135kb.fa
-
-We can run on a large DNA test dataset - 14 GTPV genomes (at the time of writing) to be downloaded based on the text in the template file:
-
-    nextflow run main.nf --config templates/template.GTPV.all.yml 
-
-We can run on a ssRNA test dataset - 15 porcine respiratory coronavirus genomes to be downloaded:
-
-    nextflow run main.nf --config templates/template.PRCV.all.yml
-
-We can investigate 2,358 mpox genomes:
-
-    nextflow run main.nf --config templates/template.MPOX.yml --reference test_data/mpox.fa
-
-We can investigate 414 Rift Valley fever virus (RVFV) S segment sequences:
-
-    nextflow run main.nf --config templates/template.RVFV.S.yml --reference test_data/RVFV.S.fa
-
-We can investigate 302 Rift Valley fever virus (RVFV) M segment sequences:
-
-    nextflow run main.nf --config templates/template.RVFV.M.yml --reference test_data/RVFV.M.fa 
-
-We can investigate 306 Rift Valley fever virus (RVFV) L segment sequences:
-
-    nextflow run main.nf --config templates/template.RVFV.L.yml  --reference test_data/RVFV.L.fa
+| Dataset (count) | Config file | Reference | Notes |
+|---|---:|---|---|
+| FMDV serotype A (142) | templates/template.FMDV.A.yml | test_data/FMDV.A.fa | Foot-and-mouth disease virus (FMDV) — serotype A; RNA virus; 142 sequences |
+| FMDV serotype O (441) | templates/template.FMDV.O.yml | test_data/FMDV.O.fa | Foot-and-mouth disease virus (FMDV) — serotype O; RNA virus; 441 sequences |
+| FMDV serotype C (18) | templates/template.FMDV.C.yml | test_data/FMDV.C.fa | Foot-and-mouth disease virus (FMDV) — serotype C; RNA virus; 18 sequences |
+| LSDV (121) | templates/template.LSDV.yml | test_data/LSDV.fa | Lumpy skin disease virus (LSDV); DNA poxvirus; full genomes; 121 sequences |
+| SPPV (29) | templates/template.SPPV.yml | test_data/SPPV.fa | Sheeppox virus (SPPV); DNA poxvirus; 29 sequences |
+| LSDV 7.5 Kb (132; 2.5–10 Kb) | templates/template.LSDV.10kb.yml | test_data/LSDV.10kb.fa | Lumpy skin disease virus (LSDV); DNA poxvirus; 132 sequences; fragments selected (~2.5–10 Kb) |
+| LSDV 5 Kb (132; 135–140 Kb) | templates/template.LSDV.135kb.yml | test_data/LSDV.135kb.fa | Lumpy skin disease virus (LSDV); DNA poxvirus; 132 sequences; genomic region ~135–140 Kb |
+| Mpox (2358) | templates/template.MPOX.yml | test_data/mpox.fa | Monkeypox virus (MPXV); DNA poxvirus; 2358 sequences |
+| RVFV S (414) | templates/template.RVFV.S.yml | test_data/RVFV.S.fa | Rift Valley fever virus (RVFV) — S segment; RNA virus; 414 sequences |
+| RVFV M (302) | templates/template.RVFV.M.yml | test_data/RVFV.M.fa | Rift Valley fever virus (RVFV) — M segment; RNA virus; 302 sequences |
+| RVFV L (306) | templates/template.RVFV.L.yml | test_data/RVFV.L.fa | Rift Valley fever virus (RVFV) — L segment; RNA virus; 306 sequences |
+| GTPV (~14; download) | templates/template.GTPV.all.yml | (download configured in template) | Goatpox virus (GTPV); DNA poxvirus; input downloaded via template |
+| PRCV (~15; download) | templates/template.PRCV.all.yml | (download configured in template) | Porcine respiratory coronavirus (PRCV); RNA coronavirus; input downloaded via template |
 
 
 ## Module selection
@@ -136,66 +109,134 @@ The modules folder contains the processes, which are called by main.nf. These wi
 
 
 ## Main components:
-### [1]  DOWNLOAD: (optional)
-     [i]   Download all 'complete genomes' or 'genomic sequences' from Nucleotide matching your text query of a specific defined organism (using the [orgn] search condition).
-### [2]  ALIGN: (optional)
-     [i]  Align the genomes with MAFFT -> see results/align/
-     [ii] Construct a phylogeny with RAxML using a GTR+G4 substitution model -> see results/align/
-### [3]  TREE: (optional)
-     [i]   Visualise the phylogeny with R -> tree.png
-### [4]  MAKE_PVG: (core)
-     [i]   Construct a PVG using PGGB based on a 90% identity threshold and a match length of 1 Kb -> results/PVG/pggb.gfa
-### [5]  VIZ1: (core)
-     [i]   Create a PVG visualisation PNG with VG's view function and dot -> results/vg/out.vg.png - note this file size is very large and may take time to resolve on any visualisation tool
-### [6]  ODGI: (core)
-     [i]   Create OG file with odgi -> results/odgi/out.og
-     [ii]  Extract odgi PVG metrics from OG file -> results/odgi/odgi.stats.txt
-### [7]  OPENNESS_PANACUS: (core)
-     [i]   Get the number of haplotypes present (usually equal to the number of genomes) -> results/panacus/haplotypes.txt
-     [ii]  Run Panacus to get the rates of PVG growth as more samples are added -> results/panacus/histgrowth.node.tsv
-     [iii] Visualise the PVG growth -> results/panacus/histgrowth.node.pdf
-### [8]  OPENNESS_PANGROWTH: (core)
-     [i]   Make a folder SEQS and split the genomes into individual files inside it.
-     [ii]  Add the genomes to a fastix shared file and run pangrowth 
-     [iii] Plot the allele frequency spectrum (AFS) -> results/pangrowth/pangrowth.pdf
-     [iv]  Plot the PVG growth -> results/pangrowth/growth.pdf
-     [v]   Plot the PVG core size -> results/pangrowth/p_core.pdf
-### [9]  PATH_FROM_GFA: (core)
-     [i]   Get the sample names from the PVG
-### [10] VCF_FROM_GFA: (core)
-     [i]   Use gfautil to convert the GFA to VCF -> results/vcf/gfavariants.vcf
-### [11] VCF_PROCESS: (core)
-     [i]   Use gfautil and Bash to quantify the pairwise difference in genome coordinates across samples.
-     [ii]  Visualise this using R -> results/vcf/variation_map-basic.pdf
-     [iii] Get the SNP density across the genomes -> results/vcf/mutation_density.pdf
-     [iv]  Count the AFS based on this SNP data -> out file
-### [12] GETBASES: (core)
-     [i]   Generate a BED file based on the odgi file -> result/out.bed
-     [ii]  Get the sequence length per genome
-### [13] VIZ2: (core)
-     [i]   Create large-scale PVG visualisation using Odgi's viz function -> result/out.viz.png
-### [14] HEAPS: (core)
-     [i]   Run Odgi's heaps function across all samples to get rate of PVG growth -> results/heaps/heaps.txt
-### [15] HEAPS_Visualize: (core)
-     [i]   Visualise the output from Odgi's heaps function in HEAPS -> results/heaps/heaps.pdf
-### [16] PAVS: (core)
-     [i]   Use Odgi to get presence-absence variants (PAVs) (a large file!)
-     [ii]  Quantify the number of PAVs -> result/out.flatten.fa
-### [17] PAVS_plot: (core)
-     [i]   Visualise the PAVs from PAVS -> result/pavs/out.flatten.pavs.pdf
-### [18] COMMUNITIES: (core)
-     [i]   Use wfmash to quantify the number of communities based on a 90% similarity threshold and at least 6 mappings per segment.
-     [ii]  Convert these mapping into a network that is visualised -> genomes.mapping.paf
-### [19] PAFGNOSTIC: (core)
-     [i]   Create a text file of the mapping from the COMMUNITIES -> pafgnostic.txt
-### [20] GFAstat: (core)
-    [i]    Compute key PVG metrics with GFAstats  -> results/gfastat/gfa.stats.txt
-    [ii]   Get the genome lengths -> results/gfastat/genome.lengths.txt
-### [20] Annotate_Position: (core)
-    [i]    Use ODGI to map PVG nodes to annotation data
-    [ii]   Provide instructions on using Bandage
-### [22] BUSCO: (optional)
-     [i]   Use Busco to count the number of BUSCO genes present.
+### Pipeline modules (summary)
+
+Each module below is a named pipeline stage. For each module: Purpose, Key inputs, Primary outputs, and Notes (core vs optional). Toggle modules in the template YAML under MODULES (1 = on, 0 = off).
+
+#### DOWNLOAD (optional)
+- Purpose: download genomes from NCBI Nucleotide using a search/query.
+- Inputs: VIRUS.name / VIRUS.filter specified in the template.
+- Outputs: `results/download/<dataset>.fa`, `results/download/metadata.tsv`
+- Notes: uses Esearch/Efetch; enforces PanSN naming when enabled; requires internet.
+
+#### ALIGN (optional)
+- Purpose: create MSA and estimate phylogeny.
+- Inputs: FASTA (downloaded or local).
+- Outputs: `results/align/alignment.fa`, `results/align/raxml.tree`
+- Notes: CPU/memory dependent; useful for QC and tree-based analyses.
+
+#### TREE (optional)
+- Purpose: render phylogeny for inspection.
+- Inputs: RAxML tree.
+- Outputs: `results/align/tree.png` (or `.pdf`)
+
+#### MAKE_PVG (core)
+- Purpose: build the pangenome variation graph with PGGB.
+- Inputs: FASTA (downloaded or local).
+- Outputs: `results/PVG/pggb.gfa` (+ PGGB intermediates)
+- Notes: default identity 90% and match length 1 kb (configurable).
+
+#### VIZ1 (core)
+- Purpose: Create a PVG visualisation PNG with VG's view function and dot.
+- Inputs: VG/PGGB outputs.
+- Outputs: `results/vg/out.vg.png`
+- Notes: large, slow and memory-intensive.
+
+#### ODGI (core)
+- Purpose: convert GFA and compute ODGI representations/metrics.
+- Inputs: GFA from PGGB.
+- Outputs: `results/odgi/out.og`, `results/odgi/odgi.stats.txt`
+- Notes: required by many downstream visualisations and metrics.
+
+#### OPENNESS_PANACUS (core)
+- Purpose: Get the number of haplotyopes present, estimate and visualize the rates of PVG growth as more samples are added.
+- Inputs: sequences/graph as prepared by prior steps.
+- Outputs: `results/panacus/haplotypes.txt`, `results/panacus/histgrowth.node.tsv`, `results/panacus/histgrowth.node.pdf`
+
+#### OPENNESS_PANGROWTH (core)
+- Purpose: growth curves, allele frequency spectrum (AFS) and core-size estimation.
+- Inputs: split sequence files and fastix preparation.
+- Outputs: `results/pangrowth/pangrowth.pdf`, `results/pangrowth/growth.pdf`, `results/pangrowth/p_core.pdf`
+
+#### PATH_FROM_GFA (core)
+- Purpose: extract sample/path names from the GFA for other modules.
+- Outputs: `results/pvg/sample_paths.txt`
+
+#### VCF_FROM_GFA (core)
+- Purpose: convert graph variants to a VCF.
+- Inputs: GFA
+- Outputs: `results/vcf/gfavariants.vcf`
+- Notes: uses gfautil; VCF feeds downstream SNP analyses.
+
+#### VCF_PROCESS (core)
+- Purpose: compute pairwise differences, SNP densities and AFS from VCFs and visualise.
+- Inputs: VCFs
+- Outputs: `results/vcf/variation_map-basic.pdf`, `results/vcf/mutation_density.pdf`, `results/vcf/afs_counts.txt`
+
+#### GETBASES (core)
+- Purpose: projects the graph sequence and paths into FASTA and BED..
+- Inputs: graph mappings
+- Outputs: `results/getbases/out.bed`, `results/getbases/genome_lengths.txt`
+
+#### VIZ2 (core)
+- Purpose: large-scale PVG visualisations with odgi viz.
+- Outputs: `results/odgi/out.viz.png` 
+- Notes: produces publication-ready images; can be large.
+
+#### HEAPS (core)
+- Purpose: Run Odgi's heaps function across all samples to get rate of PVG growth.
+- Inputs: odgi/graph-derived data
+- Outputs: `results/heaps/heaps.txt`
+
+#### HEAPS_Visualize (core)
+- Purpose: plot heaps results for visualization.
+- Inputs: `results/heaps/heaps.txt`
+- Outputs: `results/heaps/heaps.pdf`
+- Notes: can be slow for large datasets.
+
+#### PAVS (core)
+- Purpose: Use Odgi to get presence-absence variants (PAVs), and quantify the number of PAVs.  
+- Outputs: `results/pavs/*.pav`,  `results/pavs/out.flatten.fa`
+- Notes: PAV files can be large.
+
+#### PAVS_plot (core)
+- Purpose: visualise PAVs
+- Inputs: PAV outputs
+- Outputs: `results/pavs/out.flatten.pavs.pdf`
+
+#### COMMUNITIES (core)
+- Purpose: quantify the number of communities with wfmash, and convert these into a network for visualization.
+- Inputs: genome FASTAs
+- Outputs: `results/communities/genomes.mapping.paf`, `results/communities/communities.tsv`
+- Notes: defaults: 90% similarity and ≥6 mappings per segment (configurable).
+
+#### PAFGNOSTIC (core)
+- Purpose: Create a text file of the mapping from the COMMUNITIES.
+- Inputs: PAFs
+- Outputs: `results/pafgnostic/pafgnostic.txt`
+
+#### GFAstat (core)
+- Purpose: compute GFA-based PVG statistics, and genome lengths.
+- Inputs: GFA
+- Outputs: `results/gfastat/gfa.stats.txt`, `results/gfastat/genome.lengths.txt`
+
+#### Annotate_Position (core)
+- Purpose:  Use ODGI to map PVG nodes to annotation data and provide instructions on using Bandage.
+- Inputs: GFF/GTF and odgi mappings
+- Outputs: `results/annotation/node_to_feature.tsv`
+- Notes: helps link graph features to genes.
+
+#### BUSCO (optional)
+- Purpose: Use Busco to count the number of BUSCO genes present.
+- Inputs: assemblies or extracted contigs; set VIRUS.busco_clade in template.
+- Outputs: `results/busco/<sample>/short_summary.txt`
+- Notes: runtime varies with clade and dataset size.
+
+Configuration & best-practice notes
+- Toggle modules in MODULES with 1/0. Dependent modules may auto-enable.
+- Heavy stages: MAKE_PVG (PGGB), HEAPS_Visualize, PAVS — run on HPC or increase cpus/memory.
+
+Use this section to replace $SELECTION_PLACEHOLDER$ for a concise, header-based module reference.
 
 ## Dependencies
 
