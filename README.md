@@ -17,8 +17,22 @@
 - [Credits](#credits)
 - [License](#mit-license)
 
-# Overview 
-Panalyze can make and analyse [pangenome variation graphs (PVGs)](https://doi.org/10.1093/bioinformatics/btac743). This was mainly designed with virus genomes in mind. It takes in a FASTA file of related sequences and constructs a PVG from them using [PGGB](https://github.com/pangenome/pggb). It visualises the PVG using [VG](https://github.com/vgteam/vg) and [ODGI](https://github.com/pangenome/odgi), and summarises it numerically using [GFAtools](https://github.com/lh3/gfatools) and ODGI. It calculates PVG openness using [Panacus](https://github.com/marschall-lab/panacus), [Pangrowth](https://peercommunityjournal.org/item/10.24072/pcjournal.415.pdf) and ODGI's heaps function. It gets the sample genome sizes and allocates them into communities (ie, groups) based on similarity. It identifies mutations in the form of VCFs using GFAutil and gets presence-absence variants (PAVs). It has a range of optional functions, like downloading a query to create the input FASTA, and using the [BUSCO database](https://busco.ezlab.org/) to quantify the numbers of genes in the samples of interest.  You can read our preprint [here](https://www.biorxiv.org/content/10.1101/2025.04.10.646565) and some ideas behind this [here](https://arxiv.org/abs/2412.05096). Panalyze works in a [Docker](https://www.docker.com/resources/what-container) container and runs in [NextFlow](https://www.nextflow.io/).  ## Installation Panalyze requires `docker` and `Nextflow`. For installation of these, please follow instructions at https://docker.com and https://www.nextflow.io/ that matches your environment.    Clone the directory git clone https://github.com/downingtim/Panalyze/ Go to the folder
+# Overview
+
+Panalyze can make and analyse [pangenome variation graphs (PVGs)](https://doi.org/10.1093/bioinformatics/btac743). This was mainly designed with virus genomes in mind. It takes in a FASTA file of related sequences and constructs a PVG from them using [PGGB](https://github.com/pangenome/pggb). It visualises the PVG using [VG](https://github.com/vgteam/vg) and [ODGI](https://github.com/pangenome/odgi), and summarises it numerically using [GFAtools](https://github.com/lh3/gfatools) and ODGI. It calculates PVG openness using [Panacus](https://github.com/marschall-lab/panacus), [Pangrowth](https://peercommunityjournal.org/item/10.24072/pcjournal.415.pdf) and ODGI's heaps function. It gets the sample genome sizes and allocates them into communities (ie, groups) based on similarity. It identifies mutations in the form of VCFs using GFAutil and gets presence-absence variants (PAVs). It has a range of optional functions, like downloading a query to create the input FASTA, and using the [BUSCO database](https://busco.ezlab.org/) to quantify the numbers of genes in the samples of interest.
+
+You can read our preprint [here](https://www.biorxiv.org/content/10.1101/2025.04.10.646565) and some ideas behind this [here](https://arxiv.org/abs/2412.05096). Panalyze works in a [Docker](https://www.docker.com/resources/what-container) container and runs in [NextFlow](https://www.nextflow.io/).
+
+## Installation
+
+Panalyze requires `docker` and `Nextflow`. For installation of these, please follow instructions at https://docker.com and https://www.nextflow.io/ that matches your environment.    
+
+Clone the directory
+
+    git clone https://github.com/downingtim/Panalyze/
+
+Go to the folder
+
     cd Panalyze
 
 Run in Nextflow given a template YML file and an example FASTA file. You may need to activate docker and R to ensure it works smoothly. You need Java version 11+ as well.
@@ -28,7 +42,6 @@ For example, we can examine a small set of goatpox virus (GTPV) genomes:
     nextflow run main.nf --config templates/template.GTPV.yml --reference test_data/GTPV.fa
 
 Note that for your own samples, you will need to remove special characters in the fasta files. In addition, to ensure compatibility with other pangenome graph tools, please adhere to the [PanSN-spec: Pangenome Sequence Naming](https://github.com/pangenome/PanSN-spec) guidance, which basically means adding a hash and a digit onto the end of the sequence names.
-
 
 ## Examples ## 
 We have added a selection of viral genomes to represent a common range of sizes, nucleic acid composition as examples. You can run the analysis for each dataset using the command: 
