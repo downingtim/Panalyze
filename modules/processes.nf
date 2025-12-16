@@ -767,7 +767,8 @@ process Extract_Ref{
 
     script:
     """
-    samtools faidx ${refFasta} ${refid} > reference.annotate.fasta
+    samtools faidx \"${refFasta}\" \"${refid}\" > reference.annotate.fasta
+
     """
 }
 
@@ -788,9 +789,7 @@ process PROKKA{
 
     script:
     """
-    prokka --kingdom Viruses --gffver 3 --usegenus --outdir PROKKA --prefix ${refid} ${annotate_ref_fasta} --force --compliant
-    #REFERENCE_ID=${refid}
-    #prokka --kingdom Viruses --gffver 3 --usegenus --outdir PROKKA --prefix \${REFERENCE_ID} ${annotate_ref_fasta} --force --compliant
+    prokka --kingdom Viruses --gffver 3 --usegenus --outdir PROKKA --prefix \"${refid}\" ${annotate_ref_fasta} --force --compliant
     cp "PROKKA/${refid}.gff" annotation.gff
     """
 }
@@ -812,7 +811,8 @@ process Clean_GTF {
 	script:
 	"""
 	string1=\$(grep "sequence-region" ${prokkagff} | awk '{print \$2}')
-	sed "s/\${string1}/${refid}/g" ${prokkagff} | sed 's/^>//' > clean.gff
+	REFID='${refid}' 
+    sed "s/\${string1}/\$REFID/g" ${prokkagff} | sed 's/^>//' > clean.gff
 
 	gffread -E  clean.gff -T -o clean.gtf 2>/dev/null
 	# Process GTF to extract gene names or simplified gene numbers
@@ -834,7 +834,7 @@ process Clean_GTF {
 		
 		# Output in GTF format with simplified annotation
 		echo -e "\$col1\\t\$col2\\t\$col3\\t\$col4\\t\$col5\\t\$col6\\t\$col7\\t\$col8\\ttranscript_id \\"\$annotation\\"; gene_id \\"\$annotation\\""
-    done > ${refid}.prep.gtf
+    done > "${refid}".prep.gtf
 	"""
 }
 
