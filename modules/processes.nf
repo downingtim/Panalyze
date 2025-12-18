@@ -35,27 +35,34 @@ process DOWNLOAD {
     esearch -db nucleotide -query "!{q2}"|efetch -format genbank > gb.2
     cat gb.1 gb.2 > genbank.gb 
     rm gb.1 gb.2
-    #parseGB.py genbank.gb|sed -e "s%!{filter}%%g"|tr -d "',)(:;\\\""|sed -e "s%/\\| \\|-%_%g" |sed -e "s%[_]+%_%g"|tr -s _|sed -e "s/_$//"  > genomes.fasta
     parseGB.py genbank.gb > genomes.downloaded.fasta
-    ls -lt genomes.downloaded.fasta genbank.gb
     echo "File created with size: $(ls -la genomes.downloaded.fasta)"
     '''
 }
 
-process Fix_Fasta {
-    cpus 1 
-
+process Replace_Pipes {
+    cpus 1
     input:
     path (refFasta)
+    output:
+    path "pipes_fixed.fasta", emit: fasta_file
+    script:
+    """
+    sed 's/|/_/g' ${refFasta} > pipes_fixed.fasta
+    """
+}
 
+process Fix_Fasta {
+    cpus 1
+    input:
+    path (refFasta)
     output:
     path "genomes.fasta", emit: fasta_file
-
     shell:
     """
     if [ "${params.pansn_convert}" -eq 1 ]
     then
-        sed 's/\\r\$//' ${refFasta}|awk '{if(substr(\$0,1,1)==">"){stem=substr(\$0,2);print ">"stem"#1#"stem}else{print \$0}}' > genomes.fasta
+        sed 's/\\r\$//' ${refFasta} | sed -e "s%!''{filter}%%g" | tr -d "'\\\"',)(:;" | sed -e "s%/\\| \\|-%_%g" | sed -e "s%[_]+%_%g" | tr -s _ | sed -e "s%_\$%%" | awk '{if(substr(\$0,1,1)==">"){stem=substr(\$0,2);print ">"stem"#1#"stem}else{print \$0}}' > genomes.fasta
     else
         if grep -P '\\r' ${refFasta}
         then
@@ -68,6 +75,7 @@ process Fix_Fasta {
     fi
     """
 }
+
 process ALIGN {
     container "chandanatpi/panalayze_env:3.0"
     cpus { Math.min(params.cpus as int, 8) }
@@ -137,6 +145,11 @@ process MAKE_PVG {
     samtools faidx \${REFERENCE}.gz
     # run PGGB - you need to specify the number of haplotypes as an integer using the 'params.haplotypes' parameter.
     pggb -i \${REFERENCE}.gz -m -S -o . -t ${task.cpus} -p 90 -s ${params.seed} -n ${params.haplotypes}
+    if ! grep -q '^L' *.gfa;
+    then
+        echo "PGGB gfa not created, rerunning without -m -S options"
+        pggb -i \${REFERENCE}.gz -o . --all2all -t ${task.cpus} -p 90 -s ${params.seed} -n ${params.haplotypes}
+    fi
     mv *.gfa pggb.gfa
     if [ -s trim.bed ]; 
     then
@@ -208,24 +221,21 @@ process Bandage {
 process ODGI {
     container "pangenome/odgi:1726671973"
     label 'odgi'
-
     cpus 1
-
     input:
     path gfa
-
+    path cleanedFasta
     output:
     path "out.og", emit: ogfile
     path "odgi.stats.txt"
-	stdout emit: refid
-
+    stdout emit: refid
     publishDir "results/odgi", mode: "copy"
-
     script:
     """
     odgi build -g ${gfa} -o out.og
     odgi stats -m -i out.og -S > odgi.stats.txt
-    odgi paths -i out.og -L | head -n 1|tr -d '\n' 
+    # Extract only the sequence ID part (first word, before any space) from the cleaned FASTA header
+    grep "^>" ${cleanedFasta} | head -n 1 | sed 's/^>//' | cut -d' ' -f1 | tr -d '\n'
     """
 }
 
@@ -767,8 +777,7 @@ process Extract_Ref{
 
     script:
     """
-    samtools faidx \"${refFasta}\" \"${refid}\" > reference.annotate.fasta
-
+    samtools faidx "${refFasta}" "${refid}" > reference.annotate.fasta
     """
 }
 
@@ -777,20 +786,17 @@ process PROKKA{
     label 'Prokka'
     container "staphb/prokka:latest"
     publishDir "results/prokka", mode: "copy"
-
     input:
     val refid
     path annotate_ref_fasta
-
     output:
     path "PROKKA"
     path "annotation.gff",emit:prokkagff
-
-
     script:
     """
-    prokka --kingdom Viruses --gffver 3 --usegenus --outdir PROKKA --prefix \"${refid}\" ${annotate_ref_fasta} --force --compliant
-    cp "PROKKA/${refid}.gff" annotation.gff
+    CLEAN_ID="${refid}"
+    prokka --kingdom Viruses --gffver 3 --usegenus --outdir PROKKA --prefix "\${CLEAN_ID}" "${annotate_ref_fasta}" --force --compliant
+    cp "PROKKA/\${CLEAN_ID}.gff" annotation.gff
     """
 }
 
@@ -799,43 +805,37 @@ process Clean_GTF {
     label "Extract_reference"
     container "chandanatpi/panalayze_env:3.0"
     publishDir "results/bandage", mode: "copy"
-
     input:
     val refid
     path prokkagff
     path ogfile
-
     output:
     path "${refid}.prep.gtf"
-
-	script:
-	"""
-	string1=\$(grep "sequence-region" ${prokkagff} | awk '{print \$2}')
-	REFID='${refid}' 
-    sed "s/\${string1}/\$REFID/g" ${prokkagff} | sed 's/^>//' > clean.gff
-
-	gffread -E  clean.gff -T -o clean.gtf 2>/dev/null
-	# Process GTF to extract gene names or simplified gene numbers
-	grep -P "transcript\\t" clean.gtf |while IFS=\$'\\t' read -r col1 col2 col3 col4 col5 col6 col7 col8 col9;
-	do  
-		# Extract gene_name if it exists
-		gene_name=\$(echo "\$col9" | grep -oP 'gene_name "\\K[^"]+' ||true)
-		
-		if [ -n "\$gene_name" ]; then
-			# Use gene_name if available
-			annotation="\$gene_name"
-		else
-			# Extract gene_id and convert to simplified format
-			gene_id=\$(echo "\$col9" | grep -oP 'gene_id "\\K[^"]+' ||true)
-			# Extract the number part after the last underscore
-			gene_num=\$(echo "\$gene_id" | sed 's/.*_//')
-			annotation="gene_\$gene_num"
-		fi
-		
-		# Output in GTF format with simplified annotation
-		echo -e "\$col1\\t\$col2\\t\$col3\\t\$col4\\t\$col5\\t\$col6\\t\$col7\\t\$col8\\ttranscript_id \\"\$annotation\\"; gene_id \\"\$annotation\\""
-    done > "${refid}".prep.gtf
-	"""
+    script:
+    """
+    CLEAN_ID="${refid}"
+    string1=\$(grep "sequence-region" ${prokkagff} | awk '{print \$2}')
+    sed "s/\${string1}/\${CLEAN_ID}/g" ${prokkagff} | sed 's/^>//' > clean.gff
+    gffread -E  clean.gff -T -o clean.gtf 2>/dev/null
+    # Process GTF to extract gene names or simplified gene numbers
+    grep -P "transcript\\t" clean.gtf |while IFS=\$'\\t' read -r col1 col2 col3 col4 col5 col6 col7 col8 col9;
+    do
+            # Extract gene_name if it exists
+            gene_name=\$(echo "\$col9" | grep -oP 'gene_name "\\K[^"]+' ||true)
+            if [ -n "\$gene_name" ]; then
+                    # Use gene_name if available
+                    annotation="\$gene_name"
+            else
+                    # Extract gene_id and convert to simplified format
+                    gene_id=\$(echo "\$col9" | grep -oP 'gene_id "\\K[^"]+' ||true)
+                    # Extract the number part after the last underscore
+                    gene_num=\$(echo "\$gene_id" | sed 's/.*_//')
+                    annotation="gene_\$gene_num"
+            fi
+            # Output in GTF format with simplified annotation
+            echo -e "\$col1\\t\$col2\\t\$col3\\t\$col4\\t\$col5\\t\$col6\\t\$col7\\t\$col8\\ttranscript_id \\"\$annotation\\"; gene_id \\"\$annotation\\""
+    done > "\${CLEAN_ID}.prep.gtf"
+    """
 }
 
 process Annotate_Position {
