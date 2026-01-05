@@ -17,7 +17,7 @@ nextflow.enable.dsl = 2
 Modules
 #==============================================
 */
-include { Fix_Fasta; DOWNLOAD; ALIGN; TREE; MAKE_PVG; VIZ1; ODGI; OPENNESS_PANACUS; OPENNESS_PANGROWTH; PATH_FROM_GFA;VCF_FROM_GFA;VCF_PROCESS; GETBASES; VIZ2; HEAPS; HEAPS_Visualize; PAVS; PAVS_plot; WARAGRAPH; COMMUNITIES; PANAROO; BUSCO; PAFGNOSTIC; Bandage;BANDAGE_view; GFAstat; SUMMARIZE; Extract_Ref; PROKKA; Clean_GTF; Annotate_Position  } from './modules/processes.nf'
+include { Fix_Fasta; Replace_Pipes; DOWNLOAD; ALIGN; TREE; MAKE_PVG; VIZ1; ODGI; OPENNESS_PANACUS; OPENNESS_PANGROWTH; PATH_FROM_GFA;VCF_FROM_GFA;VCF_PROCESS; GETBASES; VIZ2; HEAPS; HEAPS_Visualize; PAVS; PAVS_plot; WARAGRAPH; COMMUNITIES; PANAROO; BUSCO; PAFGNOSTIC; Bandage;BANDAGE_view; GFAstat; SUMMARIZE; Extract_Ref; PROKKA; Clean_GTF; Annotate_Position  } from './modules/processes.nf'
 /*
 #==============================================
 Modules
@@ -26,42 +26,37 @@ Modules
 
 workflow Main {
     // Define a single source for fasta input
-    fastaCh_original = params.reference 
-        ? channel.fromPath(params.reference, checkIfExists: true) 
-        : DOWNLOAD().fasta_file
-    fastaCh = Fix_Fasta(fastaCh_original).fasta_file 
-    // Debug print to console
-    fastaCh.view { "Debug - Input file: $it" }
-    
-    // Proceed with downstream processes
-    if (params.align) {
-        alignOut = ALIGN(fastaCh)
-        if (params.tree) {
-            TREE(alignOut.raxml_file)
-        }
-    }
-    
-    if (params.make_pvg) {
-        pvgOut = MAKE_PVG(fastaCh)
-        
-        if (params.viz1) {
-            VIZ1(pvgOut.gfa)
-        }
-        
-        if (params.bandage) {
-            Bandage(pvgOut.gfa)
-        }
-        
-        if (params.odgi) {
-            odgiOut = ODGI(pvgOut.gfa)
 
-	    if (params.annotate){
-				Annotate(odgiOut.refid,odgiOut.ogfile,fastaCh)
-                //annotation_reference = Extract_Ref(odgiOut.refid,fastaCh)
-                //prokka_out = PROKKA(odgiOut.refid,annotation_reference)
-                //cleaned_gtf = Clean_GTF (odgiOut.refid,prokka_out.prokkagff,odgiOut.ogfile) 
-				//Annotate_Position(odgiOut.ogfile,cleaned_gtf)
-	     }
+fastaCh_original = params.reference
+    ? channel.fromPath(params.reference, checkIfExists: true)
+    : DOWNLOAD().fasta_file
+fastaCh_pipes = Replace_Pipes(fastaCh_original).fasta_file
+fastaCh = Fix_Fasta(fastaCh_pipes).fasta_file
+
+// Debug print to console
+fastaCh.view { "Debug - Input file: $it" }
+
+// Proceed with downstream processes
+if (params.align) {
+    alignOut = ALIGN(fastaCh)
+    if (params.tree) {
+        TREE(alignOut.raxml_file)
+    }
+}
+
+    if (params.make_pvg) {
+       pvgOut = MAKE_PVG(fastaCh)
+           if (params.viz1) {
+              VIZ1(pvgOut.gfa)
+    	   }
+	   if (params.bandage) {
+              Bandage(pvgOut.gfa)
+    	   }
+    	   if (params.odgi) {
+            odgiOut = ODGI(pvgOut.gfa, fastaCh)  // Pass fastaCh here
+            if (params.annotate){
+                 Annotate(odgiOut.refid,odgiOut.ogfile,fastaCh)
+	    } 
 
 	    if (params.viz2) {
                 VIZ2(odgiOut.ogfile)
@@ -78,7 +73,7 @@ workflow Main {
             if (params.getbases) {
                 GETBASES(odgiOut.ogfile, fastaCh)
             }
-        }
+           }
         
         if (params.gfastat) {
             GFAstat(pvgOut.gfa, fastaCh)
@@ -106,6 +101,7 @@ workflow Main {
         BUSCO(fastaCh_original)
     }
 }
+
 
 workflow GetVCF(){
     take:
