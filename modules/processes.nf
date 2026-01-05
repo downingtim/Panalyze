@@ -148,6 +148,7 @@ process MAKE_PVG {
     if ! grep -q '^L' *.gfa;
     then
         echo "PGGB gfa not created, rerunning without -m -S options"
+        rm *.gfa
         pggb -i \${REFERENCE}.gz -o . --all2all -t ${task.cpus} -p 90 -s ${params.seed} -n ${params.haplotypes}
     fi
     mv *.gfa pggb.gfa
@@ -203,7 +204,7 @@ process GFAstat {
 
 process Bandage {
     container "biocontainers/bandage:v0.8.1-1-deb_cv1"
-    containerOptions = "--user root"
+    label 'bandage'
     input:
     path gfa 
 
@@ -574,7 +575,7 @@ process BANDAGE_view {
     cpus 1
 
     container "biocontainers/bandage:v0.8.1-1-deb_cv1"
-    containerOptions = "--user root --env DISPLAY=$DISPLAY"
+    label 'bandage_view'
     input:
     path gfa 
 
