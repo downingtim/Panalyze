@@ -115,7 +115,7 @@ process TREE{
 }
 
 process MAKE_PVG {
-    container 'chandanatpi/tpi:pggbV01'
+    container 'chandanatpi/tpi:pggb04'
     cache 'lenient'
     tag {"index reference FASTA"}
     label 'pvg'
@@ -145,12 +145,12 @@ process MAKE_PVG {
     samtools faidx \${REFERENCE}.gz
     # run PGGB - you need to specify the number of haplotypes as an integer using the 'params.haplotypes' parameter.
     pggb -i \${REFERENCE}.gz -m -S -o . -t ${task.cpus} -p 90 -s ${params.seed} -n ${params.haplotypes}
-    if ! grep -q '^L' *.gfa;
-    then
-        echo "PGGB gfa not created, rerunning without -m -S options"
-        rm *.gfa
-        pggb -i \${REFERENCE}.gz -o . --all2all -t ${task.cpus} -p 90 -s ${params.seed} -n ${params.haplotypes}
-    fi
+    #if ! grep -q '^L' *.gfa;
+    #then
+    #    echo "PGGB gfa not created, rerunning without -m -S options"
+    #    rm *.gfa
+    #    pggb -i \${REFERENCE}.gz -o . --all2all -t ${task.cpus} -p 50 -K 11 -s ${params.seed} -n ${params.haplotypes}
+    #fi
     mv *.gfa pggb.gfa
     if [ -s trim.bed ]; 
     then
@@ -589,7 +589,7 @@ process BANDAGE_view {
 
 
 process COMMUNITIES {
-    container 'chandanatpi/tpi:pggbV01'
+    container 'chandanatpi/tpi:pggb04'
     cpus { Math.min(params.cpus as int, 44) }
     input:
     path communities_genome
@@ -711,7 +711,7 @@ process BUSCO {
 }
 
 process PAFGNOSTIC {
-    container 'chandanatpi/tpi:pggbV01'
+    container 'chandanatpi/tpi:pggb04'
     input:
     path paf_file 
 
