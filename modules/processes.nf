@@ -156,7 +156,7 @@ process MAKE_PVG {
     then
         odgi build -g pggb.gfa -o pggb.og 
         odgi chop -i pggb.og -c 1 -o chopped.og
-        odgi extract -i chopped.og -b trim.bed -o filtered.og
+        odgi extract -i chopped.og -b trim.bed -L 0 -o filtered.og
         odgi unchop -i filtered.og -o unchopped.og
         odgi view -i unchopped.og -g > pggb.gfa 
         awk '{print "s%" \$1 ":" \$2 "-" \$3 "%" \$1 "%g"}' trim.bed |sed -i -f - pggb.gfa
