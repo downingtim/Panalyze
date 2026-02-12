@@ -646,16 +646,16 @@ process COMMUNITIES {
     done
 
     # Convert PAF mappings into a network:
-    paf2net.py -p genomes.mapping.paf
+    python3 /usr/local/bin/paf2net.py -p genomes.mapping.paf
 
     # make plot
-    net2communities.py -e genomes.mapping.paf.edges.list.txt -w genomes.mapping.paf.edges.weights.txt -n genomes.mapping.paf.vertices.id2name.txt --plot
+    python3 /usr/local/bin/net2communities.py -e genomes.mapping.paf.edges.list.txt -w genomes.mapping.paf.edges.weights.txt -n genomes.mapping.paf.vertices.id2name.txt --plot
 
     # mash-based partitioning
     mash dist \${REFERENCE}.gz \${REFERENCE}.gz -s 10000 -i > genomes.distances.tsv
 
     # get distances
-    mash2net.py -m genomes.distances.tsv
+    python3 /usr/local/bin/mash2net.py -m genomes.distances.tsv
 
     output_file="genomes.communities.mash.paths.txt"
 
