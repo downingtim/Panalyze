@@ -579,11 +579,15 @@ process BANDAGE_view {
     input:
     path gfa 
 
+    output:
+    path "bandage.png"
+    publishDir "results/bandage", mode: "copy"
+
 
     script:
     """
     # view in Bandage 
-    Bandage load ${gfa} --nodewidth=22
+    Bandage image ${gfa} bandage.png --nodewidth 22
     """
 }
 
