@@ -84,10 +84,8 @@ Example commands:
 	nextflow run main.nf --config templates/template.SPPV.yml --reference test_data/SPPV.fa
 	nextflow run main.nf --config templates/template.LSDV.yml --reference test_data/LSDV.fa
 
-	For the MPOX dataset, it is large so download it from Figshare first
-	 this using doi: https://doi.org/10.6084/m9.figshare.31332709
-	Then you can run it as follows:
-	 nextflow run main.nf --config templates/template.MPOX.yml --reference test_data/MPOX.fa
+For the MPOX dataset, it is large so download it from Figshare first this using doi: https://doi.org/10.6084/m9.figshare.31332709 - then you can run it as follows:
+	nextflow run main.nf --config templates/template.MPOX.yml --reference test_data/MPOX.fa
 
 ## Segmented virus examples ##
 
