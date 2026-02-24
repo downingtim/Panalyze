@@ -79,13 +79,15 @@ Example commands:
 | MPOX (2,358) | templates/template.MPOX.yml | test_data/MPOX.fa | Monkey poxvirus (MPOX); DNA poxvirus; full genomes; 2,358 sequences |
 
 Example commands:
+
 	nextflow run main.nf --config templates/template.LSDV.10kb.yml --reference test_data/LSDV.10kb.fa
 	nextflow run main.nf --config templates/template.LSDV.135kb.yml --reference test_data/LSDV.135kb.fa
 	nextflow run main.nf --config templates/template.SPPV.yml --reference test_data/SPPV.fa
 	nextflow run main.nf --config templates/template.LSDV.yml --reference test_data/LSDV.fa
 
 For the MPOX dataset, it is large so download it from Figshare first this using doi: https://doi.org/10.6084/m9.figshare.31332709 - then you can run it as follows:
-	nextflow run main.nf --config templates/template.MPOX.yml --reference test_data/MPOX.fa
+
+nextflow run main.nf --config templates/template.MPOX.yml --reference test_data/MPOX.fa
 
 ## Segmented virus examples ##
 
@@ -96,6 +98,7 @@ For the MPOX dataset, it is large so download it from Figshare first this using 
 | RVFV L (306) | templates/template.RVFV.L.yml | test_data/RVFV.L.fa | Rift Valley fever virus (RVFV) — L segment; RNA virus; 306 sequences |
 
 Example commands:
+
 	nextflow run main.nf --config templates/template.RVFV.S.yml --reference test_data/RVFV.S.fa
 	nextflow run main.nf --config templates/template.RVFV.M.yml --reference test_data/RVFV.M.fa
 	nextflow run main.nf --config templates/template.RVFV.L.yml --reference test_data/RVFV.L.fa
@@ -108,6 +111,7 @@ Example commands:
 | PRCV (~15; download) | templates/template.PRCV.all.yml | (download configured in template) | Porcine respiratory coronavirus (PRCV); RNA coronavirus; input downloaded via template |
 
 Example commands:
+
 	nextflow run main.nf --config templates/template.GTPV.all.yml
 	nextflow run main.nf --config templates/template.PRCV.all.yml
 
