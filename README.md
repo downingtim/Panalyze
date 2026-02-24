@@ -62,6 +62,11 @@ and the datasets will be downloaded automatically.
 | FMDV serotype O (441) | templates/template.FMDV.O.yml | test_data/FMDV.O.fa | Foot-and-mouth disease virus (FMDV) — serotype O; RNA virus; 441 sequences |
 | FMDV serotype C (18) | templates/template.FMDV.C.yml | test_data/FMDV.C.fa | Foot-and-mouth disease virus (FMDV) — serotype C; RNA virus; 18 sequences |
 
+Example commands:
+
+	nextflow run main.nf --config templates/template.FMDV.C.yml --reference test_data/FMDV.C.fa
+	nextflow run main.nf --config templates/template.FMDV.A.yml --reference test_data/FMDV.A.fa
+	nextflow run main.nf --config templates/template.FMDV.O.yml --reference test_data/FMDV.O.fa
 
 ## DNA virus examples - capripoxviruses ##
 
@@ -71,7 +76,18 @@ and the datasets will be downloaded automatically.
 | LSDV 5 Kb (132; 135–140 Kb) | templates/template.LSDV.135kb.yml | test_data/LSDV.135kb.fa | Lumpy skin disease virus (LSDV); DNA poxvirus; 132 sequences; genomic region ~135–140 Kb |
 | SPPV (29) | templates/template.SPPV.yml | test_data/SPPV.fa | Sheeppox virus (SPPV); DNA poxvirus; 29 sequences |
 | LSDV (121) | templates/template.LSDV.yml | test_data/LSDV.fa | Lumpy skin disease virus (LSDV); DNA poxvirus; full genomes; 121 sequences |
+| MPOX (2,358) | templates/template.MPOX.yml | test_data/MPOX.fa | Monkey poxvirus (MPOX); DNA poxvirus; full genomes; 2,358 sequences |
 
+Example commands:
+	nextflow run main.nf --config templates/template.LSDV.10kb.yml --reference test_data/LSDV.10kb.fa
+	nextflow run main.nf --config templates/template.LSDV.135kb.yml --reference test_data/LSDV.135kb.fa
+	nextflow run main.nf --config templates/template.SPPV.yml --reference test_data/SPPV.fa
+	nextflow run main.nf --config templates/template.LSDV.yml --reference test_data/LSDV.fa
+
+	For the MPOX dataset, it is large so download it from Figshare first
+	 this using doi: https://doi.org/10.6084/m9.figshare.31332709
+	Then you can run it as follows:
+	 nextflow run main.nf --config templates/template.MPOX.yml --reference test_data/MPOX.fa
 
 ## Segmented virus examples ##
 
@@ -81,6 +97,10 @@ and the datasets will be downloaded automatically.
 | RVFV M (302) | templates/template.RVFV.M.yml | test_data/RVFV.M.fa | Rift Valley fever virus (RVFV) — M segment; RNA virus; 302 sequences |
 | RVFV L (306) | templates/template.RVFV.L.yml | test_data/RVFV.L.fa | Rift Valley fever virus (RVFV) — L segment; RNA virus; 306 sequences |
 
+Example commands:
+	nextflow run main.nf --config templates/template.RVFV.S.yml --reference test_data/RVFV.S.fa
+	nextflow run main.nf --config templates/template.RVFV.M.yml --reference test_data/RVFV.M.fa
+	nextflow run main.nf --config templates/template.RVFV.L.yml --reference test_data/RVFV.L.fa
 
 ## Examples of viral downloads ##
 
@@ -89,7 +109,9 @@ and the datasets will be downloaded automatically.
 | GTPV (~14; download) | templates/template.GTPV.all.yml | (download configured in template) | Goatpox virus (GTPV); DNA poxvirus; input downloaded via template |
 | PRCV (~15; download) | templates/template.PRCV.all.yml | (download configured in template) | Porcine respiratory coronavirus (PRCV); RNA coronavirus; input downloaded via template |
 
-
+Example commands:
+	nextflow run main.nf --config templates/template.GTPV.all.yml
+	nextflow run main.nf --config templates/template.PRCV.all.yml
 
 ## How does it work?
 
