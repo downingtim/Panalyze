@@ -5,11 +5,11 @@ PROCESS:
 VIRUS:
   name : rift valley fever virus M segment, rvfv 
   filter : rift valley fever virus, rvfv
-  busco_clade : "poxviridae_odb10" #If this is present BUSCO analysis will be done
+#  busco_clade : "poxviridae_odb10" #If this is present BUSCO analysis will be done
   haplotypes : 302
   genome_length : 3880   # minimum expected genome size
 MODULES:   # Setting the module value to 0 will switch off the module in the pipeline
-  download : 1
+  download : 0
   align : 1
   tree : 1
   make_pvg : 1

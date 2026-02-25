@@ -8,7 +8,7 @@ VIRUS:
   haplotypes : 132
   genome_length : 7500
 MODULES:   # Setting the module value to 0 will switch off the module in the pipeline
-  download : 1
+  download : 0
   align : 1
   tree : 1
   make_pvg : 1
@@ -19,7 +19,7 @@ MODULES:   # Setting the module value to 0 will switch off the module in the pip
   odgi : 1
   openness_panacus : 1
   getbases : 1
-  viz2 : 0
+  viz2 : 1
   heaps : 1
   pavs : 0
   getvcf : 1
