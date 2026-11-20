@@ -11,6 +11,7 @@
 - [Module selection](#module-selection)
 - [How does it work?](#how-does-it-work)
 - [Main components](#main-components)
+- [Interactive dashboard](#interactive-dashboard)
 - [Dependencies](#dependencies)
 - [Template file format](#template-file-format)
 - [Troubleshooting](#troubleshooting)
@@ -248,6 +249,16 @@ The individual modules, their inputs and outputs are described next.
 Configuration & best-practice notes
 - Toggle modules in MODULES with 1/0. Dependent modules may auto-enable.
 - Heavy stages: MAKE_PVG (PGGB), HEAPS_Visualize, PAVS — run on HPC or increase cpus/memory.
+
+## Interactive dashboard
+A Streamlit dashboard for browsing the `results/` folder of a run lives in `dashboard/`.
+
+```bash
+pip install -r dashboard/requirements.txt
+cd dashboard && streamlit run app.py
+```
+
+See [dashboard/README.md](dashboard/README.md) for remote/HPC use, expected input files and troubleshooting.
 
 ## Troubleshooting
 ### Speeding up
